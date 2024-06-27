@@ -15,7 +15,7 @@ void MyWeight::Init(){
     // OLED init
     myOled.Init();
 
-    // RGB bootup animation
+    // RGB init
     myLED.Init();
 
     // Scale begin
@@ -40,7 +40,7 @@ void MyWeight::Measure(){
         adc_reading = myScale.get_value(2);
 
         /* PARSING, CONVERTING, OFFSETING */
-        adc_reading = constrain(adc_reading - offset, -10000000, 1241214); // This should limit in range [-1200, 1500]g
+        adc_reading = constrain(adc_reading - offset, -1000000, 1200000); // This should limit in range [-1250, 1500]g
 
         /* CHECK IF VALUE HAS CHANGED */
         if(converted != adc_reading / myScale.get_scale()){
@@ -76,12 +76,15 @@ void MyWeight::Showcase(){
 
     /* SET STRING */
     String temp="";
-    if(converted/1000 > 1000){
+    if(converted/1000 > 1000 || converted/1000 < -1000){    // Below -1000g and Above 1000g
         temp = String(converted/1000000);
         temp+= "Kg";
     }
     else{
-        temp = String(converted/1000);
+        if(converted/1000 < 1 && converted/1000 > -1)       // Prevent -0 displaying, resolution limited to grams only
+            temp = "0";
+        else
+            temp = String(converted/1000);
         temp.remove(temp.length()-3);
         temp+= "g";
     }
